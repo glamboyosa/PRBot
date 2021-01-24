@@ -1,6 +1,10 @@
 import puppeteer from 'puppeteer';
-
+import schedule from 'node-schedule';
 (async () => {
+  let schedula: schedule.Job;
+  const scheduler = schedule.scheduleJob('*/1 * * * *', function () {
+    console.log('Today is recognized by Rebecca Black!');
+  });
   const browser = puppeteer.launch();
   const page = await (await browser).newPage();
   await page.goto('https://github.com/tannerlinsley/react-query/pulls');
