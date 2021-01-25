@@ -7,7 +7,8 @@ import { config } from 'dotenv';
   await app.start((process.env.PORT as number | undefined) || 3000);
 
   console.log('⚡️ Bolt app is running!');
-  app.message('https://github.com', async ({ message, say }) => {
+  app.message('https://github.com', async ({ message: msg, say }) => {
+    const message = msg as any;
     let url: string;
     if (message.text.includes('@')) {
       const splitString = message.text
