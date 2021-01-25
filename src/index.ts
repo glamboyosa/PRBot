@@ -26,32 +26,36 @@ import { config } from 'dotenv';
     await say(
       `Hello <@${message.user}> you'll receive daily updates at 8AM 😁`
     );
-    const scheduler = schedule.scheduleJob('*/1 * * * *', async function () {
-      const newURL = url + '/pulls';
-      const browser = puppeteer.launch();
-      const page = await (await browser).newPage();
-      await page.goto(newURL);
-      const PRLinks = await page.$$eval('a', (elements) =>
-        elements
-          .filter((element) => {
-            return element.id.includes('issue');
-          })
-          .map((element) => {
-            return {
-              link: (element as HTMLLinkElement).href,
-              content: element.textContent,
-            };
-          })
-      );
-      console.log(PRLinks);
-      await say(`Hello. <@${message.user}>. Here are your open PRs for today`);
-      PRLinks.forEach(
-        async (el) =>
-          await say(`${el.content}
+    const scheduler = schedule.scheduleJob(
+      { hour: 8, minute: 0, dayOfWeek: [0, new schedule.Range(0, 6)] },
+      async function () {
+        const newURL = url + '/pulls';
+        const browser = puppeteer.launch();
+        const page = await (await browser).newPage();
+        await page.goto(newURL);
+        const PRLinks = await page.$$eval('a', (elements) =>
+          elements
+            .filter((element) => {
+              return element.id.includes('issue');
+            })
+            .map((element) => {
+              return {
+                link: (element as HTMLLinkElement).href,
+                content: element.textContent,
+              };
+            })
+        );
+        await say(
+          `Hello. <@${message.user}>. Here are your open PRs for today`
+        );
+        PRLinks.forEach(
+          async (el) =>
+            await say(`${el.content}
       ${el.link}
       `)
-      );
-      await (await browser).close();
-    });
+        );
+        await (await browser).close();
+      }
+    );
   });
 })();

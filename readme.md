@@ -1,6 +1,6 @@
 # PR Bot 🔥
 
-A Slack bot for open source maintainers, public teams.
+A Slack bot for open source maintainers & public teams.
 
 ## Tools
 
