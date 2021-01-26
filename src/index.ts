@@ -36,7 +36,7 @@ import { config } from 'dotenv';
       `Hello <@${message.user}> you'll receive daily updates at 8AM 😁`
     );
     const scheduler = schedule.scheduleJob(
-      { hour: 8, minute: 0 },
+      { hour: 15, minute: 4 },
       async function () {
         const newURL = url + '/pulls';
         const browser = puppeteer.launch();
