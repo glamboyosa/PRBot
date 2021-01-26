@@ -44,8 +44,8 @@ import { config } from 'dotenv';
     );
     var rule = new schedule.RecurrenceRule();
     rule.dayOfWeek = [0, new schedule.Range(0, 6)];
-    rule.hour = 11;
-    rule.minute = 47;
+    rule.hour = 0;
+    rule.minute = 21;
     const scheduler = schedule.scheduleJob(rule, async function () {
       const newURL = url + '/pulls';
       const browser = puppeteer.launch();
