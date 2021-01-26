@@ -9,7 +9,7 @@ import { config } from 'dotenv';
   console.log('⚡️ Bolt app is running!');
   setInterval(() => {
     fetch('https://prbot-slack.herokuapp.com')
-      .then((resp) => {
+      .then((_) => {
         console.log('keep the server running');
       })
       .catch((err) => console.log(err.message));
@@ -43,7 +43,7 @@ import { config } from 'dotenv';
       `Hello <@${message.user}> you'll receive daily updates at 8AM 😁`
     );
     const scheduler = schedule.scheduleJob(
-      { hour: 22, minute: 42 },
+      { hour: 22, minute: 47 },
       async function () {
         const newURL = url + '/pulls';
         const browser = puppeteer.launch();
