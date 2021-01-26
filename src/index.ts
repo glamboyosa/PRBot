@@ -10,13 +10,21 @@ import { config } from 'dotenv';
   app.message('https://github.com', async ({ message: msg, say }) => {
     const message = msg as any;
     let url: string;
-    if (message.text.includes('@')) {
-      const splitString = message.text
+    console.log(message.text);
+    if (message.text.includes('|') && message.text.includes('@')) {
+      // includes @ and |
+      url = message.text.split('|')[1].split('>')[0];
+      console.log(url);
+    } else if (message.text.includes('|')) {
+      // includes just |
+      url = message.text.split('|')[0].split('<')[1];
+    } else if (message.text.includes('@')) {
+      // includes just @
+      url = message.text
         .split('<')[2]
         .split('')
         .slice(0, message.text.split('<')[2].split('').length - 1)
         .join('');
-      url = splitString;
     } else {
       url = message.text
         .split('<')[1]
@@ -28,7 +36,7 @@ import { config } from 'dotenv';
       `Hello <@${message.user}> you'll receive daily updates at 8AM 😁`
     );
     const scheduler = schedule.scheduleJob(
-      { hour: 8, minute: 0, dayOfWeek: [0, new schedule.Range(0, 6)] },
+      { hour: 11, minute: 17 },
       async function () {
         const newURL = url + '/pulls';
         const browser = puppeteer.launch();
