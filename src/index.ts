@@ -8,12 +8,13 @@ import { config } from 'dotenv';
   await app.start((process.env.PORT as number | undefined) || 3000);
   console.log('⚡️ Bolt app is running!');
   setInterval(() => {
-    fetch('https://prbot-slack.herokuapp.com')
-      .then((resp) => resp.json())
-      .then((resp) => {
-        console.log(resp);
-      })
-      .catch((err) => console.log(err.message));
+    console.log('keep the server running');
+    // fetch('https://prbot-slack.herokuapp.com')
+    //   .then((resp) => resp.json())
+    //   .then((resp) => {
+    //     console.log(resp);
+    //   })
+    //   .catch((err) => console.log(err.message));
   }, 1000 * 60 * 20);
   app.message('https://github.com', async ({ message: msg, say }) => {
     const message = msg as any;
@@ -44,7 +45,7 @@ import { config } from 'dotenv';
       `Hello <@${message.user}> you'll receive daily updates at 8AM 😁`
     );
     const scheduler = schedule.scheduleJob(
-      { hour: 20, minute: 18 },
+      { hour: 21, minute: 18 },
       async function () {
         const newURL = url + '/pulls';
         const browser = puppeteer.launch();
