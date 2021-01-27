@@ -32,6 +32,7 @@ import { config } from 'dotenv';
         .split('')
         .slice(0, message.text.split('<')[2].split('').length - 1)
         .join('');
+      console.log(url);
     } else {
       url = message.text
         .split('<')[1]
@@ -42,10 +43,11 @@ import { config } from 'dotenv';
     await say(
       `Hello <@${message.user}> you'll receive daily updates at 8AM 😁`
     );
-    var rule = new schedule.RecurrenceRule();
-    rule.dayOfWeek = [0, new schedule.Range(0, 6)];
-    rule.hour = 0;
-    rule.minute = 21;
+    const rule = new schedule.RecurrenceRule();
+    rule.dayOfWeek = [0, 1, 2, 3, 4, 5, 6];
+    rule.hour = 8;
+    rule.minute = 0;
+    rule.second = 0;
     const scheduler = schedule.scheduleJob(rule, async function () {
       const newURL = url + '/pulls';
       const browser = puppeteer.launch();
