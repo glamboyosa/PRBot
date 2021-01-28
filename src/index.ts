@@ -1,5 +1,4 @@
 import puppeteer from 'puppeteer';
-import schedule from 'node-schedule';
 import app from './helpers/boltSetup';
 import fetch from 'node-fetch';
 import { config } from 'dotenv';
@@ -25,7 +24,7 @@ import { CronJob } from 'cron';
       .join('');
     await say(`Hello <@${event.user}> you'll receive daily updates at 8AM 😁`);
     const job = new CronJob(
-      '0 3 11 * * *',
+      '0 51 10 * * 1-7',
       async () => {
         console.log('run everyday at 8AM');
         const newURL = url + '/pulls';
@@ -54,7 +53,8 @@ import { CronJob } from 'cron';
         await (await browser).close();
       },
       null,
-      true
+      true,
+      ''
     );
     job.start();
   });
