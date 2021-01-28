@@ -24,11 +24,13 @@ import { CronJob } from 'cron';
       .join('');
     await say(`Hello <@${event.user}> you'll receive daily updates at 8AM 😁`);
     const job = new CronJob(
-      '00 00 11 * * *',
+      '00 17 11 * * *',
       async () => {
         console.log('run everyday at 8AM');
         const newURL = url + '/pulls';
-        const browser = puppeteer.launch();
+        const browser = puppeteer.launch({
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
         const page = await (await browser).newPage();
         await page.goto(newURL);
         const PRLinks = await page.$$eval('a', (elements) =>
