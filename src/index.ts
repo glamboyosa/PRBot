@@ -24,7 +24,7 @@ import { CronJob } from 'cron';
       .join('');
     await say(`Hello <@${event.user}> you'll receive daily updates at 8AM 😁`);
     const job = new CronJob(
-      '00 00 20 * * *',
+      '00 00 8 * * *',
       async () => {
         console.log('run everyday at 8AM');
         const newURL = url + '/pulls';
@@ -45,13 +45,19 @@ import { CronJob } from 'cron';
               };
             })
         );
-        await say(`Hello. <@${event.user}>. Here are your open PRs for today`);
-        PRLinks.forEach(
-          async (el) =>
-            await say(`${el.content}
-      ${el.link}
-      `)
-        );
+        if (PRLinks.length === 0) {
+          await say(`Hello. <@${event.user}>. There are no open PRs.`);
+        } else {
+          await say(
+            `Hello. <@${event.user}>. Here are your open PRs for today`
+          );
+          PRLinks.forEach(
+            async (el) =>
+              await say(`${el.content}
+        ${el.link}
+        `)
+          );
+        }
         await (await browser).close();
       },
       null,
