@@ -24,7 +24,7 @@ import { CronJob } from 'cron';
       .join('');
     await say(`Hello <@${event.user}> you'll receive daily updates at 8AM 😁`);
     const job = new CronJob(
-      '00 55 11 * * *',
+      '00 00 20 * * *',
       async () => {
         console.log('run everyday at 8AM');
         const newURL = url + '/pulls';
