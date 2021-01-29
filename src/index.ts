@@ -12,7 +12,8 @@ import Bot from './models/slack';
   connect(db!, { useNewUrlParser: true }, () => {
     console.log(`connected to ${__PROD__ ? 'production DB' : 'local DB'}`);
   });
-  receiver.app.get('/access-token', cors, async (req, res) => {
+  receiver.app.use(cors());
+  receiver.app.get('/access-token', async (req, res) => {
     const { code, channel_id } = req.query;
     const integrated = await Bot.findOne({ channel_id });
     if (integrated) {
