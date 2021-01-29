@@ -44,7 +44,7 @@ import Bot from './models/slack';
     try {
       await client.chat.postMessage({
         channel,
-        token: 'xoxb-1685366711557-1681755663958-V0s8TQjqzRaiuNY4lYYR4kEg',
+        token: '',
         text: `Hello <@${event.user}> you'll now receive daily updates on that repo😁`,
       });
     } catch (e) {
