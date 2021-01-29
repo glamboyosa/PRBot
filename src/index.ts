@@ -58,7 +58,7 @@ import Bot from './models/slack';
         text: `Hello <@${event.user}> you'll now receive daily updates on that repo😁`,
       });
       const job = new CronJob(
-        '00 00 9 * * *',
+        '00 30 7 * * *',
         async () => {
           console.log('run everyday at 9AM UTC');
           const newURL = url + '/pulls';
