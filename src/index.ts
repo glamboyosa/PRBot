@@ -5,13 +5,14 @@ import fetch from 'node-fetch';
 import { config } from 'dotenv';
 import { CronJob } from 'cron';
 import { connect } from 'mongoose';
+import cors from 'cors';
 import Bot from './models/slack';
 (async () => {
   config();
   connect(db!, { useNewUrlParser: true }, () => {
     console.log(`connected to ${__PROD__ ? 'production DB' : 'local DB'}`);
   });
-  receiver.app.get('/access-token', async (req, res) => {
+  receiver.app.get('/access-token', cors, async (req, res) => {
     const { code, channel_id } = req.query;
     const integrated = await Bot.findOne({ channel_id });
     if (integrated) {
@@ -50,7 +51,6 @@ import Bot from './models/slack';
     } catch (e) {
       console.log(e.message);
     }
-    // await say(`Hello <@${event.user}> you'll receive daily updates at 8AM 😁`);
     // const job = new CronJob(
     //   '00 00 8 * * *',
     //   async () => {
