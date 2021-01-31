@@ -14,7 +14,7 @@ import { WebClient } from '@slack/web-api';
     console.log(`connected to ${__PROD__ ? 'production DB' : 'local DB'}`);
   });
   receiver.app.use(cors());
-  receiver.app.get('/access-token', async (req, res) => {
+  receiver.app.get('/access-token', cors, async (req, res) => {
     const { code, channel_id } = req.query;
     /* user wants to reintegrate bot to a channel it was previously in likely because access was revoked
     simply update with new token */
