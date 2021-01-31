@@ -8,5 +8,12 @@ const schema = new Schema({
     type: String,
     required: true,
   },
+  user: {
+    type: String,
+    required: true,
+  },
+  urls: {
+    type: [{ url: String }],
+  },
 });
 export default model('Bot', schema);
