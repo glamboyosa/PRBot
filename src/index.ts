@@ -7,6 +7,7 @@ import { CronJob } from 'cron';
 import { connect } from 'mongoose';
 import cors from 'cors';
 import Bot from './models/slack';
+import Log from './models/logs';
 import { WebClient } from '@slack/web-api';
 (async () => {
   config();
@@ -115,6 +116,10 @@ import { WebClient } from '@slack/web-api';
             }
             await (await browser).close();
           } catch (e) {
+            await Log.create({
+              from: 'puppeteer try...catch',
+              error: e.message,
+            });
             console.log(e.message);
             await client.chat.postMessage({
               channel: slackDetails.channelId,
@@ -199,6 +204,10 @@ import { WebClient } from '@slack/web-api';
             }
           }
         } catch (e) {
+          await Log.create({
+            from: 'puppeteer try...catch in prod & user exists',
+            error: e.message,
+          });
           console.log(e.message);
           await client.chat.postMessage({
             channel: slackDetails.channelId,
