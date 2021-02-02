@@ -7,5 +7,5 @@ A Slack bot for open source maintainers & public teams.
 - TypeScript
 - Node.js
 - Puppeteer
-- node-schedule
+- node-cron
 - slack/bolt
