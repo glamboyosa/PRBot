@@ -70,10 +70,11 @@ import { WebClient } from '@slack/web-api';
       const job = new CronJob(
         '00 30 7 * * 0-6',
         async () => {
+          let browser: Promise<puppeteer.Browser>;
           try {
             console.log('run everyday at 7:30AM UTC');
             const newURL = url + '/pulls';
-            const browser = puppeteer.launch({
+            browser = puppeteer.launch({
               args: ['--no-sandbox', '--disable-setuid-sandbox'],
             });
             const page = await (await browser).newPage();
@@ -122,6 +123,7 @@ import { WebClient } from '@slack/web-api';
               you'll receive updates tomorrow. 
               `,
             });
+            await (await browser!).close();
           }
         },
         null,
