@@ -9,6 +9,7 @@ import cors from 'cors';
 import Bot from './models/slack';
 import Log from './models/logs';
 import { WebClient } from '@slack/web-api';
+import FormData from 'form-data';
 (async () => {
   config();
   connect(db!, { useNewUrlParser: true }, () => {
@@ -79,7 +80,7 @@ import { WebClient } from '@slack/web-api';
               args: ['--no-sandbox', '--disable-setuid-sandbox'],
             });
             const page = await (await browser).newPage();
-            await page.goto(newURL);
+            await page.goto(newURL, { timeout: 0 });
             const PRLinks = await page.$$eval('a', (elements) =>
               elements
                 .filter((element) => {
@@ -145,8 +146,97 @@ import { WebClient } from '@slack/web-api';
   This is useful incase the node process stopped running e.g. we started a new build 
   so the job in app.event('app_mention') stopped running. It will simply restart the job
   */
+  if (slackDetails && slackDetails.length >= 1) {
+    for (const { urls, channelId, accessToken, user } of slackDetails) {
+      for (const { url } of urls) {
+        const newURL = url + '/pulls';
+        const browser = puppeteer.launch({
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
+        const page = await (await browser).newPage();
+        await page.goto(newURL, { timeout: 0 });
+        const PRLinks = await page.$$eval('a', (elements) =>
+          elements
+            .filter((element) => {
+              return element.id.includes('issue');
+            })
+            .map((element) => {
+              return {
+                link: (element as HTMLLinkElement).href,
+                content: element.textContent,
+              };
+            })
+        );
+        if (PRLinks.length === 0) {
+          const formData = new FormData();
+          formData.append('token', accessToken);
+          fetch(
+            encodeURI(
+              `https://slack.com/api/chat.postMessage?channel=${channelId}&text=Hello <@${user}>. There are no open PRs.`
+            ),
+            {
+              method: 'POST',
+              body: formData,
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          )
+            .then((resp) => resp.json())
+            .then((resp) => console.log(resp))
+            .catch((e) =>
+              console.log(e.message, 'from telling user there are no links')
+            );
+        } else {
+          const formData = new FormData();
+          formData.append('token', accessToken);
+
+          fetch(
+            encodeURI(
+              `https://slack.com/api/chat.postMessage?channel=${channelId}&text=Hello <@${user}>. Here are your open PRs for today.`
+            ),
+            {
+              method: 'POST',
+              body: formData,
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          )
+            .then((resp) => resp.json())
+            .then((resp) => console.log(resp))
+            .catch((e) =>
+              console.log(e.message, 'from telling user he has links for today')
+            );
+          for (const { content, link } of PRLinks) {
+            const formData = new FormData();
+            formData.append('token', accessToken);
+
+            fetch(
+              encodeURI(
+                `https://slack.com/api/chat.postMessage?channel=${channelId}&text=${`
+            ${content}
+            ${link}
+            `}`
+              ),
+              {
+                method: 'POST',
+                body: formData,
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              }
+            )
+              .then((resp) => resp.json())
+              .then((resp) => console.log(resp))
+              .catch((e) => console.log(e.message, 'from posting content'));
+          }
+        }
+        await (await browser).close();
+      }
+    }
+  }
   if (__PROD__ && slackDetails && slackDetails.length >= 1) {
-    let client: WebClient;
     let browser: Promise<puppeteer.Browser>;
     console.log("we're in prod and we have saved details before");
     const job = new CronJob(
@@ -161,11 +251,11 @@ import { WebClient } from '@slack/web-api';
           for (const { urls, channelId, accessToken, user } of slackDetails) {
             for (const { url } of urls) {
               const newURL = url + '/pulls';
-              browser = puppeteer.launch({
+              const browser = puppeteer.launch({
                 args: ['--no-sandbox', '--disable-setuid-sandbox'],
               });
               const page = await (await browser).newPage();
-              await page.goto(newURL);
+              await page.goto(newURL, { timeout: 0 });
               const PRLinks = await page.$$eval('a', (elements) =>
                 elements
                   .filter((element) => {
@@ -179,25 +269,76 @@ import { WebClient } from '@slack/web-api';
                   })
               );
               if (PRLinks.length === 0) {
-                await client.chat.postMessage({
-                  channel: channelId,
-                  token: accessToken,
-                  text: `Hello <@${user}>. There are no open PRs.`,
-                });
+                const formData = new FormData();
+                formData.append('token', accessToken);
+                fetch(
+                  encodeURI(
+                    `https://slack.com/api/chat.postMessage?channel=${channelId}&text=Hello <@${user}>. There are no open PRs.`
+                  ),
+                  {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                      Authorization: `Bearer ${accessToken}`,
+                    },
+                  }
+                )
+                  .then((resp) => resp.json())
+                  .then((resp) => console.log(resp))
+                  .catch((e) =>
+                    console.log(
+                      e.message,
+                      'from telling user there are no links'
+                    )
+                  );
               } else {
-                await client.chat.postMessage({
-                  channel: channelId,
-                  token: accessToken,
-                  text: `Hello. <@${user}>. Here are your open PRs for today`,
-                });
+                const formData = new FormData();
+                formData.append('token', accessToken);
+
+                fetch(
+                  encodeURI(
+                    `https://slack.com/api/chat.postMessage?channel=${channelId}&text=Hello <@${user}>. Here are your open PRs for today.`
+                  ),
+                  {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                      Authorization: `Bearer ${accessToken}`,
+                    },
+                  }
+                )
+                  .then((resp) => resp.json())
+                  .then((resp) => console.log(resp))
+                  .catch((e) =>
+                    console.log(
+                      e.message,
+                      'from telling user he has links for today'
+                    )
+                  );
                 for (const { content, link } of PRLinks) {
-                  await client.chat.postMessage({
-                    channel: channelId,
-                    token: accessToken,
-                    text: `${content}
-            ${link}
-            `,
-                  });
+                  const formData = new FormData();
+                  formData.append('token', accessToken);
+
+                  fetch(
+                    encodeURI(
+                      `https://slack.com/api/chat.postMessage?channel=${channelId}&text=${`
+                  ${content}
+                  ${link}
+                  `}`
+                    ),
+                    {
+                      method: 'POST',
+                      body: formData,
+                      headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                      },
+                    }
+                  )
+                    .then((resp) => resp.json())
+                    .then((resp) => console.log(resp))
+                    .catch((e) =>
+                      console.log(e.message, 'from posting content')
+                    );
                 }
               }
               await (await browser).close();
@@ -209,13 +350,6 @@ import { WebClient } from '@slack/web-api';
             error: e.message,
           });
           console.log(e.message);
-          await client.chat.postMessage({
-            channel: slackDetails.channelId,
-            token: slackDetails.accessToken,
-            text: `Hello <@${slackDetails.user}> unfortunately, something went wrong. 
-            you'll receive updates tomorrow. 
-            `,
-          });
           await (await browser).close();
         }
       },
